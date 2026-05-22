@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CutStudio Basic</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--panel:#1a1a26;--card:#222233;--border:#2e2e45;--text:#e8e8f0;--dim:#606078;--accent:#00cec9}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.nav{display:flex;align-items:center;height:44px;padding:0 14px;background:var(--panel);border-bottom:1px solid var(--border)}
+.logo{font-weight:700;color:var(--accent);font-size:14px;display:flex;align-items:center;gap:5px}
+.menu{display:flex;gap:10px;margin-left:20px}
+.menu button{background:none;border:none;color:var(--dim);font-size:12px;font-weight:500;cursor:pointer;padding:4px 8px;border-radius:6px}
+.menu button:hover{background:var(--card);color:var(--text)}
+.nav-right{margin-left:auto;display:flex;gap:8px}
+.btn{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer}
+.btn.out{background:transparent;border:1px solid var(--border);color:var(--text)}
+.main{display:grid;grid-template-columns:200px 1fr 220px;height:calc(100vh - 44px)}
+@media(max-width:900px){.main{grid-template-columns:180px 1fr 200px}}
+@media(max-width:700px){.main{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}.sidebar,.props{display:none}}
+.sidebar{background:var(--panel);border-right:1px solid var(--border);padding:12px;overflow-y:auto}
+.section{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px;font-weight:600}
+.import-box{width:100%;padding:10px;background:var(--card);border:1px dashed var(--border);border-radius:8px;text-align:center;color:var(--dim);cursor:pointer;font-size:11px;margin-bottom:12px}
+.import-box:hover{border-color:var(--accent);color:var(--accent)}
+.media-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:0.15s}
+.media-item:hover{border-color:var(--accent);transform:translateY(-1px)}
+.media-item .name{font-size:11px;font-weight:500;margin-bottom:2px}
+.media-item .meta{font-size:9px;color:var(--dim)}
+.center{display:flex;flex-direction:column;background:var(--bg)}
+.preview{flex:1;display:flex;align-items:center;justify-content:center;position:relative;padding:16px;background:linear-gradient(135deg,#000 0%,#0a0a0f 100%)}
+.preview video{max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);display:none}
+.placeholder{width:100%;max-width:480px;aspect-ratio:16/9;background:var(--panel);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--dim);text-align:center;gap:6px}
+.controls{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--panel);border-top:1px solid var(--border)}
+.ctrl{width:28px;height:28px;background:var(--card);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--dim);transition:0.15s}
+.ctrl:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.time{margin-left:auto;font-family:monospace;font-size:11px;color:var(--dim)}
+.timeline{height:120px;background:var(--panel);border-top:1px solid var(--border);padding:10px;overflow-x:auto}
+.track{height:26px;background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:5px;display:flex;align-items:center;padding:0 8px;font-size:10px;position:relative}
+.clip{position:absolute;height:20px;top:3px;background:linear-gradient(90deg,var(--accent),#059669);border-radius:5px;display:flex;align-items:center;padding:0 6px;font-size:9px;color:#fff;cursor:grab}
+.clip:active{cursor:grabbing}
+.props{background:var(--panel);border-left:1px solid var(--border);padding:12px;overflow-y:auto}
+.prop-group{margin-bottom:14px}
+.prop-label{font-size:9px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;font-weight:600}
+.prop-row{display:flex;gap:6px;margin-bottom:6px}
+.prop-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:11px;outline:none}
+.prop-input:focus{border-color:var(--accent)}
+.slider{-webkit-appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;margin:6px 0}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:var(--accent);border-radius:50%;cursor:pointer}
+.footer{height:20px;background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 10px;font-size:9px;color:var(--dim)}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--panel);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:11px;z-index:999;transition:0.2s}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="logo">🌱 CutStudio Basic</div>
+  <div class="menu">
+    <button>Neu</button><button>Öffnen</button><button onclick="showToast('💾 Gespeichert')">Speichern</button><button>Export</button>
+  </div>
+  <div class="nav-right">
+    <button class="btn out" onclick="window.location.href='index.html'">🚪 Abmelden</button>
+  </div>
+</div>
+
+<div class="main">
+  <aside class="sidebar">
+    <label class="import-box" for="fileIn">📥 Medien importieren</label>
+    <input type="file" id="fileIn" style="display:none" accept="video/*" onchange="handleImport(event)">
+    <div class="section">MEDIEN</div>
+    <div id="mediaList">
+      <div class="media-item" onclick="addClip('Video_1.mp4')"><div class="name">🎬 Video_1.mp4</div><div class="meta">1920×1080 • 2:34</div></div>
+      <div class="media-item" onclick="addClip('Audio.mp3')"><div class="name">🎵 Audio.mp3</div><div class="meta">320kbps • 3:45</div></div>
+    </div>
+    <div class="section">FEATURES</div>
+    <div style="font-size:10px;color:var(--accent)">✓ Schneiden & Import</div>
+    <div style="font-size:10px;color:var(--accent)">✓ Audio hinzufügen</div>
+    <div style="font-size:10px;color:var(--dim);margin-top:4px">✗ Effekte / Export</div>
+  </aside>
+
+  <section class="center">
+    <div class="preview">
+      <div class="placeholder" id="placeholder">▶<br><span style="font-size:11px">Wiedergabe startet hier</span></div>
+      <video id="vid" controls playsinline loop></video>
+    </div>
+    <div class="controls">
+      <div class="ctrl" id="playBtn" onclick="togglePlay()">▶</div>
+      <div class="ctrl" onclick="skip(-5)">⏪</div>
+      <div class="ctrl" onclick="skip(5)">⏩</div>
+      <div class="time" id="time">00:00:00</div>
+    </div>
+    <div class="timeline">
+      <div class="track" id="vidTrack">🎬 Video-Spur</div>
+      <div class="track" id="audTrack">🎵 Audio-Spur</div>
+    </div>
+  </section>
+
+  <aside class="props">
+    <div class="prop-group">
+      <div class="prop-label">Position</div>
+      <div class="prop-row"><input class="prop-input" placeholder="X: 960"><input class="prop-input" placeholder="Y: 540"></div>
+    </div>
+    <div class="prop-group">
+      <div class="prop-label">Größe</div>
+      <div class="prop-row"><input class="prop-input" placeholder="W: 1920"><input class="prop-input" placeholder="H: 1080"></div>
+    </div>
+    <div class="prop-group">
+      <div class="prop-label">Skalierung</div>
+      <input type="range" class="slider" min="50" max="200" value="100" oninput="document.getElementById('scaleVal').textContent=this.value+'%'">
+      <span id="scaleVal" style="font-size:10px;color:var(--dim)">100%</span>
+    </div>
+    <div style="margin-top:16px;padding:8px;background:var(--card);border-radius:8px;text-align:center">
+      <div style="font-size:10px;color:var(--dim)">Pro-Features freischalten</div>
+      <button class="btn prim" style="width:100%;margin-top:6px;font-size:10px" onclick="window.location.href='index.html'">Upgrade</button>
+    </div>
+  </aside>
+</div>
+
+<div class="footer"><span style="color:var(--accent)">✓ Bereit</span><span style="margin-left:8px">• Projekt: Mein_Video</span><span style="margin-left:auto">CutStudio Basic</span></div>
+<div class="toast" id="toast"></div>
+
+<script>
+if(!localStorage.getItem('currentUser')) window.location.href='index.html';
+let playing=false;const vid=document.getElementById('vid'),ph=document.getElementById('placeholder');
+
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const url=URL.createObjectURL(file);vid.src=url;vid.style.display='block';ph.style.display='none';vid.play();playing=true;
+  document.getElementById('playBtn').textContent='⏸';updateTime();
+  const item=document.createElement('div');item.className='media-item';item.innerHTML=`<div class="name">🎬 ${file.name}</div><div class="meta">Importiert</div>`;
+  document.getElementById('mediaList').prepend(item);showToast('📥 Import erfolgreich');
+}
+function togglePlay(){if(!vid.src)return showToast('⚠️ Erst ein Video importieren!');playing=!playing;vid[playing?'play':'pause']();document.getElementById('playBtn').textContent=playing?'⏸':'▶';if(playing)updateTime();}
+function skip(s){if(vid.src)vid.currentTime=Math.max(0,Math.min(vid.duration,vid.currentTime+s));}
+function updateTime(){if(!playing)return;const t=vid.currentTime;const m=Math.floor(t/60),s=Math.floor(t%60),ms=Math.floor((t%1)*100);document.getElementById('time').textContent=`00:${m<10?'0':''}${m}:${s<10?'0':''}${s}:${ms<10?'0':''}${ms}`;requestAnimationFrame(updateTime);}
+function addClip(n){const t=document.getElementById('vidTrack');const c=document.createElement('div');c.className='clip';c.style.left='20px';c.style.width='80px';c.textContent=n;t.appendChild(c);showToast('📥 Clip hinzugefügt');}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{e.preventDefault();if(e.target.closest('.timeline'))addClip('Drop.mp4');});
+</script>
+</body>
+</html>
