@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CutStudio Medium</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--panel:#1a1a26;--card:#222233;--border:#2e2e45;--text:#e8e8f0;--dim:#606078;--accent:#ffa502}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.nav{display:flex;align-items:center;height:44px;padding:0 14px;background:var(--panel);border-bottom:1px solid var(--border)}
+.logo{font-weight:700;color:var(--accent);font-size:14px;display:flex;align-items:center;gap:5px}
+.menu{display:flex;gap:10px;margin-left:20px}
+.menu button{background:none;border:none;color:var(--dim);font-size:12px;font-weight:500;cursor:pointer;padding:4px 8px;border-radius:6px}
+.menu button:hover{background:var(--card);color:var(--text)}
+.nav-right{margin-left:auto;display:flex;gap:8px}
+.btn{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer}
+.btn.out{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn.prim{background:var(--accent);color:#000}
+.main{display:grid;grid-template-columns:220px 1fr 240px;height:calc(100vh - 44px)}
+@media(max-width:900px){.main{grid-template-columns:200px 1fr 220px}}
+@media(max-width:700px){.main{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}.sidebar,.props{display:none}}
+.sidebar{background:var(--panel);border-right:1px solid var(--border);padding:12px;overflow-y:auto}
+.section{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px;font-weight:600}
+.import-box{width:100%;padding:10px;background:var(--card);border:1px dashed var(--border);border-radius:8px;text-align:center;color:var(--dim);cursor:pointer;font-size:11px;margin-bottom:12px}
+.import-box:hover{border-color:var(--accent);color:var(--accent)}
+.media-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:0.15s}
+.media-item:hover{border-color:var(--accent);transform:translateY(-1px)}
+.media-item .name{font-size:11px;font-weight:500;margin-bottom:2px}
+.media-item .meta{font-size:9px;color:var(--dim)}
+.fx{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:7px;margin-bottom:6px;font-size:10px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:0.15s}
+.fx:hover{border-color:var(--accent);background:rgba(255,165,2,0.1)}
+.podcast-btn{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:7px;margin:10px 0;text-align:center;font-size:10px;cursor:pointer}
+.podcast-btn.active{
