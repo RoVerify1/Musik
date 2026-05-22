@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CutStudio — Video Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--panel:#1a1a26;--card:#222233;--border:#2e2e45;--text:#e8e8f0;--dim:#606078;--accent:#6c5ce7;--accent-l:#a29bfe;--green:#00cec9;--orange:#ffa502;--red:#ff6b6b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+a{color:var(--accent-l);text-decoration:none;cursor:pointer}
+.nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;padding:0 20px;background:rgba(10,10,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:100}
+.logo{font-size:18px;font-weight:800;color:var(--accent-l);display:flex;align-items:center;gap:8px}
+.nav-links{margin-left:30px;display:flex;gap:20px}
+.nav-links a{font-size:13px;color:var(--dim);font-weight:500}
+.nav-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
+.btn.out{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn.out:hover{border-color:var(--accent-l)}
+.btn.prim{background:var(--accent);color:#fff}
+.btn.prim:hover{background:#8577f0}
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:60px 20px 40px;text-align:center}
+.hero h1{font-size:clamp(32px,7vw,64px);font-weight:900;line-height:1.1;margin-bottom:16px}
+.hero span{background:linear-gradient(135deg,var(--accent-l),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--dim);max-width:600px;margin:0 auto 24px}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.hero-btn{padding:12px 28px;border-radius:12px;font-size:14px;font-weight:700;border:none;cursor:pointer}
+.hero-btn.p{background:var(--accent);color:#fff}
+.hero-btn.s{background:var(--card);border:1px solid var(--border);color:var(--text)}
+.versions{max-width:1000px;margin:0 auto;padding:40px 20px}
+.versions h2{text-align:center;font-size:clamp(22px,4vw,28px);font-weight:800;margin-bottom:32px}
+.v-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.v-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:.2s}
+.v-card:hover{border-color:var(--accent);transform:translateY(-4px)}
+.v-card .icon{font-size:36px;margin-bottom:12px}
+.v-card .name{font-size:18px;font-weight:700;margin-bottom:4px}
+.v-card .desc{font-size:13px;color:var(--dim);margin-bottom:14px}
+.v-card .badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.v-card.basic .badge{background:rgba(0,206,201,.2);color:var(--green)}
+.v-card.medium .badge{background:rgba(255,165,2,.2);color:var(--orange)}
+.v-card.pro .badge{background:rgba(108,92,231,.2);color:var(--accent)}
+.v-card .features{list-style:none;text-align:left;font-size:12px;color:var(--dim);margin:12px 0}
+.v-card .features li{margin:4px 0}
+footer{padding:30px 20px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--dim)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:200}
+.modal.show{display:flex}
+.modal-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:380px;width:90%;position:relative}
+.modal-box h2{text-align:center;font-size:20px;font-weight:800;margin-bottom:6px}
+.modal-box .sub{text-align:center;color:var(--dim);font-size:12px;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
+.inp{width:100%;height:40px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0 12px;font-size:13px;color:var(--text);outline:none}
+.inp:focus{border-color:var(--accent)}
+.plans{display:flex;gap:8px;margin:12px 0}
+.plan{flex:1;padding:10px 6px;background:var(--card);border:2px solid var(--border);border-radius:8px;text-align:center;cursor:pointer}
+.plan.sel{border-color:var(--accent);background:rgba(108,92,231,.1)}
+.plan .i{font-size:18px;margin-bottom:4px}
+.plan .n{font-size:10px;font-weight:700}
+.legal{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:12px}
+.chk{display:flex;align-items:flex-start;gap:6px;margin:6px 0}
+.chk input{margin-top:2px;accent-color:var(--accent)}
+.chk label{font-size:11px;color:var(--dim)}
+.err{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--red);padding:8px;border-radius:6px;font-size:11px;margin-top:10px;display:none}
+.modal-close{position:absolute;top:12px;right:12px;width:24px;height:24px;background:var(--card);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px}
+.user-pill{display:none;align-items:center;gap:12px}
+.badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.badge.anfaenger{background:rgba(0,206,201,.2);color:var(--green)}
+.badge.mittel{background:rgba(255,165,2,.2);color:var(--orange)}
+.badge.pro{background:rgba(108,92,231,.2);color:var(--accent)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;position:relative}
+.dropdown{position:absolute;top:100%;right:0;margin-top:6px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:4px;min-width:150px;display:none}
+.dropdown div{padding:6px 10px;font-size:11px;color:var(--dim);border-radius:4px;cursor:pointer}
+.dropdown div:hover{background:var(--accent);color:#fff}
+@media(max-width:768px){.nav-links{display:none}.hero h1{font-size:32px}.v-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="logo">🎬 CutStudio</div>
+  <div class="nav-links">
+    <a href="#versions">Versionen</a>
+    <a href="#" onclick="openModal('login')">Anmelden</a>
+    <a href="#" onclick="openModal('register')">Registrieren</a>
+    <a href="admin.html" style="color:var(--red)">🔐 Admin</a>
+  </div>
+  <div class="nav-right" id="authBtns">
+    <button class="btn out" onclick="openModal('login')">Anmelden</button>
+    <button class="btn prim" onclick="openModal('register')">Starten</button>
+  </div>
+  <div class="user-pill" id="userMenu">
+    <span class="badge" id="planBadge">Anfänger</span>
+    <div class="avatar" onclick="toggleDrop()"><span id="uLetter">U</span>
+      <div class="dropdown" id="drop">
+        <div id="uName">@user</div>
+        <div onclick="goToVersion()">🎬 Editor öffnen</div>
+        <div onclick="logout()">🚪 Abmelden</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div>
+    <h1>Professionelle<br><span>Video-Bearbeitung</span><br>im Browser</h1>
+    <p>Schneide, bearbeite und exportiere direkt im Browser. Kostenlos • Ohne Installation • Drei Stufen</p>
+    <div class="hero-btns">
+      <button class="hero-btn p" onclick="openModal('register')">Jetzt starten</button>
+      <button class="hero-btn s" onclick="document.getElementById('versions').scrollIntoView({behavior:'smooth'})">Versionen ↓</button>
+    </div>
+  </div>
+</section>
+
+<section class="versions" id="versions">
+  <h2>Wähle deine Version</h2>
+  <div class="v-grid">
+    <div class="v-card basic" onclick="checkAndGo('anfaenger','beginner.html')">
+      <div class="icon">🌱</div><div class="name">CutStudio Basic</div><span class="badge">Anfänger</span><p class="desc">Perfekt für den Einstieg</p>
+      <ul class="features"><li>✓ Grundlegendes Schneiden</li><li>✓ Audio hinzufügen</li><li>✓ Fade In/Out</li><li>✗ Keine Effekte</li></ul>
+      <button class="btn out" onclick="checkAndGo('anfaenger','beginner.html')">Basic öffnen →</button>
+    </div>
+    <div class="v-card medium" onclick="checkAndGo('mittel','Medium.html')">
+      <div class="icon">⚡</div><div class="name">CutStudio Medium</div><span class="badge">Mittel</span><p class="desc">Mehr Features für Fortgeschrittene</p>
+      <ul class="features"><li>✓ Alles aus Basic</li><li>✓ Übergänge & Effekte</li><li>✓ Export (1080p)</li><li>✓ Podcast-Modus</li></ul>
+      <button class="btn out" onclick="checkAndGo('mittel','Medium.html')">Medium öffnen →</button>
+    </div>
+    <div class="v-card pro" onclick="checkAndGo('pro','pro.html')">
+      <div class="icon">👑</div><div class="name">CutStudio Pro</div><span class="badge">Pro</span><p class="desc">Alle Features freigeschaltet</p>
+      <ul class="features"><li>✓ Alles aus Medium</li><li>✓ 4K Export</li><li>✓ Alle Videoeffekte</li><li>✓ Keyframes & LUTs</li></ul>
+      <button class="btn prim" onclick="checkAndGo('pro','pro.html')">Pro öffnen →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Felix Ms Strassgang • <a href="#" onclick="alert('AGB: Private Nutzung erlaubt.')">AGB</a> • <a href="#" onclick="alert('Datenschutz: Lokale Speicherung, keine Server-Übertragung.')">Datenschutz</a> • <a href="mailto:CutStudio@kiblox.at">Support</a></p>
+</footer>
+
+<!-- Auth Modal -->
+<div class="modal" id="authModal">
+  <div class="modal-box">
+    <div class="modal-close" onclick="closeAuth()">✕</div>
+    <div id="authLogin">
+      <h2>Anmelden</h2><div class="sub">Willkommen zurück</div>
+      <div class="form-group"><label class="form-label">Benutzername</label><input class="inp" id="lUser" placeholder="Dein Username"></div>
+      <div class="form-group"><label class="form-label">Passwort</label><input class="inp" type="password" id="lPass" placeholder="Dein Passwort"></div>
+      <button class="btn prim" style="width:100%" onclick="doLogin()">Anmelden →</button>
+      <div class="sub" style="margin-top:12px">Noch kein Konto? <a onclick="switchAuth('register')">Registrieren</a></div>
+      <div class="err" id="lErr"></div>
+    </div>
+    <div id="authReg" style="display:none">
+      <h2>Registrieren</h2><div class="sub">Erstelle dein kostenloses Konto</div>
+      <div class="form-group"><label class="form-label">Benutzername</label><input class="inp" id="rUser" placeholder="min. 3 Zeichen"></div>
+      <div class="form-group"><label class="form-label">Passwort</label><input class="inp" type="password" id="rPass" placeholder="min. 6 Zeichen"></div>
+      <div class="form-group"><label class="form-label">Stufe wählen</label>
+        <div class="plans">
+          <div class="plan basic sel" onclick="selPlan(this,'anfaenger')"><div class="i">🌱</div><div class="n">Anfänger</div></div>
+          <div class="plan medium" onclick="selPlan(this,'mittel')"><div class="i">⚡</div><div class="n">Mittel</div></div>
+          <div class="plan pro" onclick="selPlan(this,'pro')"><div class="i">👑</div><div class="n">Pro</div></div>
+        </div>
+      </div>
+      <div class="legal">
+        <div class="chk"><input type="checkbox" id="cAgb" onchange="checkReg()"><label>Ich stimme den AGB zu*</label></div>
+        <div class="chk"><input type="checkbox" id="cDat" onchange="checkReg()"><label>Ich akzeptiere die Datenschutzerklärung*</label></div>
+        <div style="font-size:9px;color:var(--dim);margin-top:4px">* Pflicht</div>
+      </div>
+      <button class="btn prim" style="width:100%;margin-top:14px" id="regBtn" onclick="doRegister()" disabled>Registrieren →</button>
+      <div class="sub" style="margin-top:10px">Bereits Konto? <a onclick="switchAuth('login')">Anmelden</a></div>
+      <div class="err" id="rErr"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedPlan='anfaenger';
+document.addEventListener('DOMContentLoaded',checkSession);
+
+function checkSession(){
+  const u=localStorage.getItem('currentUser');
+  if(!u) return;
+  const plan=localStorage.getItem('cs_plan_'+u)||'anfaenger';
+  document.getElementById('authBtns').style.display='none';
+  document.getElementById('userMenu').style.display='flex';
+  document.getElementById('uLetter').textContent=u.charAt(0).toUpperCase();
+  document.getElementById('uName').textContent='@'+u;
+  const p={anfaenger:'Anfänger',mittel:'Mittel',pro:'Pro'};
+  const badge=document.getElementById('planBadge');
+  badge.textContent=p[plan];badge.className='badge '+plan;
+}
+
+function openModal(type){document.getElementById('authModal').classList.add('show');switchAuth(type);}
+function closeAuth(){document.getElementById('authModal').classList.remove('show');}
+function switchAuth(mode){
+  document.getElementById('authLogin').style.display=mode==='login'?'block':'none';
+  document.getElementById('authReg').style.display=mode==='register'?'block':'none';
+  document.querySelectorAll('.err').forEach(e=>e.style.display='none');
+  checkReg();
+}
+function selPlan(el,plan){document.querySelectorAll('.plan').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');selectedPlan=plan;checkReg();}
+function checkReg(){document.getElementById('regBtn').disabled=!(document.getElementById('cAgb').checked&&document.getElementById('cDat').checked);}
+
+function doLogin(){
+  const u=document.getElementById('lUser').value.trim(),p=document.getElementById('lPass').value;
+  if(!u||!p)return showErr('lErr','Felder ausfüllen');
+  const saved=localStorage.getItem('cs_pass_'+u);
+  if(!saved)return showErr('lErr','User nicht gefunden');
+  if(saved!==p)return showErr('lErr','Falsches Passwort');
+  localStorage.setItem('currentUser',u);closeAuth();location.reload();
+}
+function doRegister(){
+  const u=document.getElementById('rUser').value.trim(),p=document.getElementById('rPass').value;
+  if(u.length<3||p.length<6)return showErr('rErr','Min. 3/6 Zeichen');
+  if(localStorage.getItem('cs_pass_'+u))return showErr('rErr','Name vergeben');
+  localStorage.setItem('cs_pass_'+u,p);localStorage.setItem('cs_plan_'+u,selectedPlan);localStorage.setItem('currentUser',u);
+  closeAuth();location.reload();
+}
+function logout(){localStorage.removeItem('currentUser');location.reload();}
+function toggleDrop(){document.getElementById('drop').style.display=document.getElementById('drop').style.display==='block'?'none':'block';}
+document.addEventListener('click',e=>{if(!e.target.closest('.avatar'))document.getElementById('drop').style.display='none';});
+function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
+function goToVersion(){const u=localStorage.getItem('currentUser');const p=localStorage.getItem('cs_plan_'+u)||'anfaenger';window.location.href=p==='pro'?'pro.html':p==='mittel'?'Medium.html':'beginner.html';}
+function checkAndGo(req,page){const u=localStorage.getItem('currentUser');if(!u){openModal('login');return;}const o={anfaenger:1,mittel:2,pro:3};const my=localStorage.getItem('cs_plan_'+u);if(o[my]>=o[req])window.location.href=page;else alert('Upgrade auf '+(req==='mittel'?'Mittel':'Pro')+' nötig!');}
+</script>
+</body>
+</html>
