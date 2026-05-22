@@ -4,57 +4,146 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CutStudio — Video Editor</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0a0f;--panel:#1a1a26;--card:#222233;--border:#2e2e45;--text:#e8e8f0;--dim:#606078;--accent:#6c5ce7;--accent-l:#a29bfe;--green:#00cec9;--orange:#ffa502;--red:#ff6b6b}
 *{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
-a{color:var(--accent-l);text-decoration:none;cursor:pointer}
-.nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;padding:0 20px;background:rgba(10,10,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:100}
-.logo{font-size:18px;font-weight:800;color:var(--accent-l);display:flex;align-items:center;gap:8px}
+
+/* ===== ANIMATED BACKGROUND ===== */
+.bg-animation{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.15;animation:orbFloat 20s ease-in-out infinite}
+.bg-orb:nth-child(1){width:600px;height:600px;background:var(--accent);top:-20%;left:-10%}
+.bg-orb:nth-child(2){width:500px;height:500px;background:var(--green);bottom:-20%;right:-10%;animation-delay:-7s}
+.bg-orb:nth-child(3){width:400px;height:400px;background:#ff6b9d;top:40%;left:50%;animation-delay:-14s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-40px) scale(1.1)}66%{transform:translate(-30px,30px) scale(0.9)}}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(108,92,231,0.4)}50%{transform:scale(1.05);box-shadow:0 0 20px 10px rgba(108,92,231,0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 5px var(--accent),0 0 10px var(--accent)}50%{box-shadow:0 0 20px var(--accent),0 0 30px var(--accent)}}
+
+.animate{opacity:0;transform:translateY(30px);transition:all 0.6s ease}
+.animate.show{opacity:1;transform:translateY(0)}
+.animate-delay-1{transition-delay:0.1s}
+.animate-delay-2{transition-delay:0.2s}
+.animate-delay-3{transition-delay:0.3s}
+.animate-delay-4{transition-delay:0.4s}
+
+/* ===== NAVBAR ===== */
+.nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;padding:0 20px;background:rgba(10,10,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:100;animation:slideDown 0.6s ease}
+.logo{font-size:18px;font-weight:800;color:var(--accent-l);display:flex;align-items:center;gap:8px;transition:all 0.3s}
+.logo:hover{transform:scale(1.05)}
 .nav-links{margin-left:30px;display:flex;gap:20px}
-.nav-links a{font-size:13px;color:var(--dim);font-weight:500}
+.nav-links a{font-size:13px;color:var(--dim);font-weight:500;position:relative;transition:color 0.3s}
+.nav-links a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:var(--accent-l);transition:width 0.3s}
+.nav-links a:hover{color:var(--text)}
+.nav-links a:hover::after{width:100%}
 .nav-right{margin-left:auto;display:flex;gap:10px;align-items:center}
-.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.1);border-radius:50%;transition:all 0.4s;transform:translate(-50%,-50%)}
+.btn:hover::before{width:300px;height:300px}
 .btn.out{background:transparent;border:1px solid var(--border);color:var(--text)}
-.btn.out:hover{border-color:var(--accent-l)}
+.btn.out:hover{border-color:var(--accent-l);transform:translateY(-2px);box-shadow:0 4px 15px rgba(162,155,254,0.2)}
 .btn.prim{background:var(--accent);color:#fff}
-.btn.prim:hover{background:#8577f0}
-.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:60px 20px 40px;text-align:center}
-.hero h1{font-size:clamp(32px,7vw,64px);font-weight:900;line-height:1.1;margin-bottom:16px}
-.hero span{background:linear-gradient(135deg,var(--accent-l),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero p{color:var(--dim);max-width:600px;margin:0 auto 24px}
-.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.hero-btn{padding:12px 28px;border-radius:12px;font-size:14px;font-weight:700;border:none;cursor:pointer}
+.btn.prim:hover{background:#8577f0;transform:translateY(-2px);box-shadow:0 4px 20px rgba(108,92,231,0.3)}
+.btn.pulse{animation:pulse 2s infinite}
+.user-pill{display:none;align-items:center;gap:12px}
+.badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;transition:all 0.3s}
+.badge:hover{transform:scale(1.1)}
+.badge.anfaenger{background:rgba(0,206,201,.2);color:var(--green)}
+.badge.mittel{background:rgba(255,165,2,.2);color:var(--orange)}
+.badge.pro{background:rgba(108,92,231,.2);color:var(--accent)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;position:relative;transition:all 0.3s}
+.avatar:hover{transform:scale(1.1);box-shadow:0 0 15px var(--accent-glow)}
+.dropdown{position:absolute;top:100%;right:0;margin-top:6px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:4px;min-width:150px;display:none;animation:scaleIn 0.2s ease}
+.dropdown.show{display:block}
+.dropdown div{padding:6px 10px;font-size:11px;color:var(--dim);border-radius:4px;cursor:pointer;transition:all 0.2s}
+.dropdown div:hover{background:var(--accent);color:#fff;transform:translateX(4px)}
+
+/* ===== HERO ===== */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:60px 20px 40px;text-align:center;position:relative;overflow:hidden}
+.hero-content{max-width:800px}
+.hero h1{font-size:clamp(32px,7vw,72px);font-weight:900;line-height:1.05;margin-bottom:16px;animation:slideUp 0.8s ease 0.2s both}
+.hero span{background:linear-gradient(135deg,var(--accent-l),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;display:inline-block}
+.hero p{color:var(--dim);max-width:600px;margin:0 auto 24px;line-height:1.6;font-size:clamp(14px,2vw,16px);animation:slideUp 0.8s ease 0.4s both}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:slideUp 0.8s ease 0.6s both}
+.hero-btn{padding:14px 32px;border-radius:12px;font-size:14px;font-weight:700;border:none;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+.hero-btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,0.1) 50%,transparent 60%);transition:all 0.6s;transform:translateX(-100%)}
+.hero-btn:hover::after{transform:translateX(100%)}
 .hero-btn.p{background:var(--accent);color:#fff}
+.hero-btn.p:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(108,92,231,0.4)}
 .hero-btn.s{background:var(--card);border:1px solid var(--border);color:var(--text)}
+.hero-btn.s:hover{border-color:var(--accent-l);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.scroll-indicator{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);animation:bounce 2s infinite;font-size:24px;color:var(--dim)}
+
+/* ===== DOWNLOAD SECTION ===== */
+.downloads{max-width:1000px;margin:0 auto;padding:40px 20px}
+.downloads h2{text-align:center;font-size:clamp(22px,4vw,28px);font-weight:800;margin-bottom:32px;position:relative;display:inline-block;left:50%;transform:translateX(-50%)}
+.downloads h2::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:60px;height:3px;background:var(--accent);border-radius:2px}
+.d-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.d-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+.d-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--green));transform:scaleX(0);transition:transform 0.3s;transform-origin:left}
+.d-card:hover::before{transform:scaleX(1)}
+.d-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.d-card .thumb{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden}
+.d-card .thumb::after{content:'▶';position:absolute;font-size:20px;color:rgba(255,255,255,0.8);opacity:0;transition:all 0.3s;transform:scale(0.8)}
+.d-card:hover .thumb::after{opacity:1;transform:scale(1)}
+.d-card .title{font-size:14px;font-weight:600;margin-bottom:4px}
+.d-card .meta{font-size:11px;color:var(--dim);margin-bottom:12px}
+.d-card .dl-btn{width:100%;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.d-card .dl-btn:hover{background:#8577f0;transform:scale(1.02)}
+
+/* ===== VERSIONS ===== */
 .versions{max-width:1000px;margin:0 auto;padding:40px 20px}
 .versions h2{text-align:center;font-size:clamp(22px,4vw,28px);font-weight:800;margin-bottom:32px}
 .v-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
-.v-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:.2s}
-.v-card:hover{border-color:var(--accent);transform:translateY(-4px)}
-.v-card .icon{font-size:36px;margin-bottom:12px}
+.v-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+.v-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(108,92,231,0.1));opacity:0;transition:opacity 0.3s}
+.v-card:hover::before{opacity:1}
+.v-card:hover{border-color:var(--accent);transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,0.4)}
+.v-card .icon{font-size:40px;margin-bottom:12px;transition:all 0.3s}
+.v-card:hover .icon{transform:scale(1.2) rotate(10deg)}
 .v-card .name{font-size:18px;font-weight:700;margin-bottom:4px}
 .v-card .desc{font-size:13px;color:var(--dim);margin-bottom:14px}
-.v-card .badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.v-card .badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;transition:all 0.3s}
+.v-card .badge:hover{transform:scale(1.1)}
 .v-card.basic .badge{background:rgba(0,206,201,.2);color:var(--green)}
 .v-card.medium .badge{background:rgba(255,165,2,.2);color:var(--orange)}
 .v-card.pro .badge{background:rgba(108,92,231,.2);color:var(--accent)}
 .v-card .features{list-style:none;text-align:left;font-size:12px;color:var(--dim);margin:12px 0}
-.v-card .features li{margin:4px 0}
-footer{padding:30px 20px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--dim)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:200}
+.v-card .features li{margin:4px 0;padding-left:16px;position:relative;transition:all 0.2s}
+.v-card .features li::before{content:'✓';position:absolute;left:0;color:var(--accent)}
+.v-card .features li:hover{color:var(--text);transform:translateX(4px)}
+.v-card .btn{width:100%;margin-top:12px;transition:all 0.2s}
+.v-card:hover .btn{animation:pulse 1.5s infinite}
+
+/* ===== FOOTER ===== */
+footer{padding:30px 20px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--dim);animation:fadeIn 1s ease 0.5s both}
+footer a{transition:color 0.3s}
+footer a:hover{color:var(--accent-l)}
+
+/* ===== MODAL ===== */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:200;animation:fadeIn 0.3s ease}
 .modal.show{display:flex}
-.modal-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:380px;width:90%;position:relative}
+.modal-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:380px;width:90%;position:relative;animation:scaleIn 0.3s ease}
 .modal-box h2{text-align:center;font-size:20px;font-weight:800;margin-bottom:6px}
 .modal-box .sub{text-align:center;color:var(--dim);font-size:12px;margin-bottom:20px}
 .form-group{margin-bottom:14px}
 .form-label{display:block;font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
-.inp{width:100%;height:40px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0 12px;font-size:13px;color:var(--text);outline:none}
-.inp:focus{border-color:var(--accent)}
+.inp{width:100%;height:40px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0 12px;font-size:13px;color:var(--text);outline:none;transition:all 0.2s}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 10px var(--accent-glow)}
 .plans{display:flex;gap:8px;margin:12px 0}
-.plan{flex:1;padding:10px 6px;background:var(--card);border:2px solid var(--border);border-radius:8px;text-align:center;cursor:pointer}
-.plan.sel{border-color:var(--accent);background:rgba(108,92,231,.1)}
+.plan{flex:1;padding:10px 6px;background:var(--card);border:2px solid var(--border);border-radius:8px;text-align:center;cursor:pointer;transition:all 0.2s}
+.plan:hover{transform:translateY(-2px);border-color:var(--dim)}
+.plan.sel{border-color:var(--accent);background:rgba(108,92,231,.1);animation:pulse 1s ease}
 .plan .i{font-size:18px;margin-bottom:4px}
 .plan .n{font-size:10px;font-weight:700}
 .legal{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:12px}
@@ -62,24 +151,36 @@ footer{padding:30px 20px;border-top:1px solid var(--border);text-align:center;fo
 .chk input{margin-top:2px;accent-color:var(--accent)}
 .chk label{font-size:11px;color:var(--dim)}
 .err{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--red);padding:8px;border-radius:6px;font-size:11px;margin-top:10px;display:none}
-.modal-close{position:absolute;top:12px;right:12px;width:24px;height:24px;background:var(--card);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px}
-.user-pill{display:none;align-items:center;gap:12px}
-.badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700}
-.badge.anfaenger{background:rgba(0,206,201,.2);color:var(--green)}
-.badge.mittel{background:rgba(255,165,2,.2);color:var(--orange)}
-.badge.pro{background:rgba(108,92,231,.2);color:var(--accent)}
-.avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;position:relative}
-.dropdown{position:absolute;top:100%;right:0;margin-top:6px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:4px;min-width:150px;display:none}
-.dropdown div{padding:6px 10px;font-size:11px;color:var(--dim);border-radius:4px;cursor:pointer}
-.dropdown div:hover{background:var(--accent);color:#fff}
-@media(max-width:768px){.nav-links{display:none}.hero h1{font-size:32px}.v-grid{grid-template-columns:1fr}}
+.modal-close{position:absolute;top:12px;right:12px;width:24px;height:24px;background:var(--card);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all 0.2s}
+.modal-close:hover{background:var(--accent);color:#fff;transform:rotate(90deg)}
+
+/* ===== LOADING SPINNER ===== */
+.loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s,visibility 0.5s}
+.loader.hidden{opacity:0;visibility:hidden}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .nav-links{display:none}
+  .hero h1{font-size:32px}
+  .v-grid,.d-grid{grid-template-columns:1fr}
+  .scroll-indicator{bottom:20px;font-size:20px}
+}
 </style>
 </head>
 <body>
 
+<!-- Loading Screen -->
+<div class="loader" id="loader"><div class="spinner"></div></div>
+
+<!-- Animated Background -->
+<div class="bg-animation"><div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-orb"></div></div>
+
+<!-- Navbar -->
 <nav class="nav">
   <div class="logo">🎬 CutStudio</div>
   <div class="nav-links">
+    <a href="#downloads">Downloads</a>
     <a href="#versions">Versionen</a>
     <a href="#" onclick="openModal('login')">Anmelden</a>
     <a href="#" onclick="openModal('register')">Registrieren</a>
@@ -87,7 +188,7 @@ footer{padding:30px 20px;border-top:1px solid var(--border);text-align:center;fo
   </div>
   <div class="nav-right" id="authBtns">
     <button class="btn out" onclick="openModal('login')">Anmelden</button>
-    <button class="btn prim" onclick="openModal('register')">Starten</button>
+    <button class="btn prim pulse" onclick="openModal('register')">Jetzt starten</button>
   </div>
   <div class="user-pill" id="userMenu">
     <span class="badge" id="planBadge">Anfänger</span>
@@ -101,42 +202,77 @@ footer{padding:30px 20px;border-top:1px solid var(--border);text-align:center;fo
   </div>
 </nav>
 
+<!-- Hero -->
 <section class="hero">
-  <div>
-    <h1>Professionelle<br><span>Video-Bearbeitung</span><br>im Browser</h1>
-    <p>Schneide, bearbeite und exportiere direkt im Browser. Kostenlos • Ohne Installation • Drei Stufen</p>
-    <div class="hero-btns">
-      <button class="hero-btn p" onclick="openModal('register')">Jetzt starten</button>
-      <button class="hero-btn s" onclick="document.getElementById('versions').scrollIntoView({behavior:'smooth'})">Versionen ↓</button>
+  <div class="hero-content">
+    <h1 class="animate">Professionelle<br><span>Video-Bearbeitung</span><br>im Browser</h1>
+    <p class="animate animate-delay-1">Schneide, bearbeite und exportiere direkt im Browser. Kostenlos • Ohne Installation • Drei Stufen</p>
+    <div class="hero-btns animate animate-delay-2">
+      <button class="hero-btn p" onclick="openModal('register')">🚀 Jetzt starten</button>
+      <button class="hero-btn s" onclick="document.getElementById('downloads').scrollIntoView({behavior:'smooth'})">📥 Beispielvideos</button>
+    </div>
+  </div>
+  <div class="scroll-indicator">↓</div>
+</section>
+
+<!-- Downloads Section -->
+<section class="downloads" id="downloads">
+  <h2 class="animate">📥 Kostenlose Beispielvideos</h2>
+  <div class="d-grid">
+    <div class="d-card animate animate-delay-1">
+      <div class="thumb" style="background:linear-gradient(135deg,#2d1b69,#11998e)">🎬</div>
+      <div class="title">Nature Clip HD</div>
+      <div class="meta">1920×1080 • 0:15 • MP4</div>
+      <button class="dl-btn" onclick="downloadVideo('nature.mp4')">⬇️ Herunterladen</button>
+    </div>
+    <div class="d-card animate animate-delay-2">
+      <div class="thumb" style="background:linear-gradient(135deg,#0c3547,#a855a7)">🌆</div>
+      <div class="title">City Timelapse</div>
+      <div class="meta">1920×1080 • 0:10 • MP4</div>
+      <button class="dl-btn" onclick="downloadVideo('city.mp4')">⬇️ Herunterladen</button>
+    </div>
+    <div class="d-card animate animate-delay-3">
+      <div class="thumb" style="background:linear-gradient(135deg,#e74c3c,#f39c12)">🎵</div>
+      <div class="title">Background Music</div>
+      <div class="meta">320kbps • 1:30 • MP3</div>
+      <button class="dl-btn" onclick="downloadVideo('music.mp3')">⬇️ Herunterladen</button>
+    </div>
+    <div class="d-card animate animate-delay-4">
+      <div class="thumb" style="background:linear-gradient(135deg,#1a5276,#2ecc71)">🎙️</div>
+      <div class="title">Podcast Intro</div>
+      <div class="meta">48kHz • 0:08 • WAV</div>
+      <button class="dl-btn" onclick="downloadVideo('podcast.wav')">⬇️ Herunterladen</button>
     </div>
   </div>
 </section>
 
+<!-- Versions Section -->
 <section class="versions" id="versions">
-  <h2>Wähle deine Version</h2>
+  <h2 class="animate">Wähle deine Version</h2>
   <div class="v-grid">
-    <div class="v-card basic" onclick="checkAndGo('anfaenger','beginner.html')">
+    <div class="v-card basic animate animate-delay-1" onclick="checkAndGo('anfaenger','beginner.html')">
       <div class="icon">🌱</div><div class="name">CutStudio Basic</div><span class="badge">Anfänger</span><p class="desc">Perfekt für den Einstieg</p>
-      <ul class="features"><li>✓ Grundlegendes Schneiden</li><li>✓ Audio hinzufügen</li><li>✓ Fade In/Out</li><li>✗ Keine Effekte</li></ul>
+      <ul class="features"><li>Grundlegendes Schneiden</li><li>Audio hinzufügen</li><li>Fade In/Out</li><li>Untertitel</li></ul>
       <button class="btn out" onclick="checkAndGo('anfaenger','beginner.html')">Basic öffnen →</button>
     </div>
-    <div class="v-card medium" onclick="checkAndGo('mittel','Medium.html')">
+    <div class="v-card medium animate animate-delay-2" onclick="checkAndGo('mittel','Medium.html')">
       <div class="icon">⚡</div><div class="name">CutStudio Medium</div><span class="badge">Mittel</span><p class="desc">Mehr Features für Fortgeschrittene</p>
-      <ul class="features"><li>✓ Alles aus Basic</li><li>✓ Übergänge & Effekte</li><li>✓ Export (1080p)</li><li>✓ Podcast-Modus</li></ul>
+      <ul class="features"><li>Alles aus Basic</li><li>Übergänge & Effekte</li><li>Titel & Lower Thirds</li><li>Export (1080p)</li><li>Podcast-Modus</li></ul>
       <button class="btn out" onclick="checkAndGo('mittel','Medium.html')">Medium öffnen →</button>
     </div>
-    <div class="v-card pro" onclick="checkAndGo('pro','pro.html')">
+    <div class="v-card pro animate animate-delay-3" onclick="checkAndGo('pro','pro.html')">
       <div class="icon">👑</div><div class="name">CutStudio Pro</div><span class="badge">Pro</span><p class="desc">Alle Features freigeschaltet</p>
-      <ul class="features"><li>✓ Alles aus Medium</li><li>✓ 4K Export</li><li>✓ Alle Videoeffekte</li><li>✓ Keyframes & LUTs</li></ul>
+      <ul class="features"><li>Alles aus Medium</li><li>4K Export</li><li>Alle Videoeffekte</li><li>Keyframes & LUTs</li><li>Color Grading</li></ul>
       <button class="btn prim" onclick="checkAndGo('pro','pro.html')">Pro öffnen →</button>
     </div>
   </div>
 </section>
 
 <footer>
-  <p>© 2026 Felix Ms Strassgang • <a href="#" onclick="alert('AGB: Private Nutzung erlaubt.')">AGB</a> • <a href="#" onclick="alert('Datenschutz: Lokale Speicherung, keine Server-Übertragung.')">Datenschutz</a> • <a href="mailto:CutStudio@kiblox.at">Support</a></p>
+  <p>© 2026 Felix Ms Strassgang • <a href="#" onclick="alert('AGB')">AGB</a> • <a href="#" onclick="alert('Datenschutz')">Datenschutz</a> • <a href="mailto:CutStudio@kiblox.at">Support</a></p>
 </footer>
 
+<!-- Auth Modal -->
 <div class="modal" id="authModal">
   <div class="modal-box">
     <div class="modal-close" onclick="closeAuth()">✕</div>
@@ -172,22 +308,106 @@ footer{padding:30px 20px;border-top:1px solid var(--border);text-align:center;fo
 </div>
 
 <script>
+// ===== LOADING SCREEN =====
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('loader').classList.add('hidden'), 800);
+});
+
+// ===== SCROLL ANIMATIONS =====
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('show');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.animate').forEach(el => observer.observe(el));
+
+// ===== AUTH SYSTEM =====
 let selectedPlan='anfaenger';
-document.addEventListener('DOMContentLoaded',checkSession);
-function checkSession(){const u=localStorage.getItem('currentUser');if(!u)return;const plan=localStorage.getItem('cs_plan_'+u)||'anfaenger';document.getElementById('authBtns').style.display='none';document.getElementById('userMenu').style.display='flex';document.getElementById('uLetter').textContent=u.charAt(0).toUpperCase();document.getElementById('uName').textContent='@'+u;const p={anfaenger:'Anfänger',mittel:'Mittel',pro:'Pro'};const badge=document.getElementById('planBadge');badge.textContent=p[plan];badge.className='badge '+plan;}
+document.addEventListener('DOMContentLoaded', checkSession);
+
+function checkSession(){
+  const u=localStorage.getItem('currentUser');
+  if(!u) return;
+  const plan=localStorage.getItem('cs_plan_'+u)||'anfaenger';
+  document.getElementById('authBtns').style.display='none';
+  document.getElementById('userMenu').style.display='flex';
+  document.getElementById('uLetter').textContent=u.charAt(0).toUpperCase();
+  document.getElementById('uName').textContent='@'+u;
+  const p={anfaenger:'Anfänger',mittel:'Mittel',pro:'Pro'};
+  const badge=document.getElementById('planBadge');
+  badge.textContent=p[plan];badge.className='badge '+plan;
+}
+
 function openModal(type){document.getElementById('authModal').classList.add('show');switchAuth(type);}
 function closeAuth(){document.getElementById('authModal').classList.remove('show');}
-function switchAuth(mode){document.getElementById('authLogin').style.display=mode==='login'?'block':'none';document.getElementById('authReg').style.display=mode==='register'?'block':'none';document.querySelectorAll('.err').forEach(e=>e.style.display='none');checkReg();}
+function switchAuth(mode){
+  document.getElementById('authLogin').style.display=mode==='login'?'block':'none';
+  document.getElementById('authReg').style.display=mode==='register'?'block':'none';
+  document.querySelectorAll('.err').forEach(e=>e.style.display='none');
+  checkReg();
+}
 function selPlan(el,plan){document.querySelectorAll('.plan').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');selectedPlan=plan;checkReg();}
 function checkReg(){document.getElementById('regBtn').disabled=!(document.getElementById('cAgb').checked&&document.getElementById('cDat').checked);}
-function doLogin(){const u=document.getElementById('lUser').value.trim(),p=document.getElementById('lPass').value;if(!u||!p)return showErr('lErr','Felder ausfüllen');const saved=localStorage.getItem('cs_pass_'+u);if(!saved)return showErr('lErr','User nicht gefunden');if(saved!==p)return showErr('lErr','Falsches Passwort');localStorage.setItem('currentUser',u);closeAuth();location.reload();}
-function doRegister(){const u=document.getElementById('rUser').value.trim(),p=document.getElementById('rPass').value;if(u.length<3||p.length<6)return showErr('rErr','Min. 3/6 Zeichen');if(localStorage.getItem('cs_pass_'+u))return showErr('rErr','Name vergeben');localStorage.setItem('cs_pass_'+u,p);localStorage.setItem('cs_plan_'+u,selectedPlan);localStorage.setItem('currentUser',u);closeAuth();location.reload();}
+
+function doLogin(){
+  const u=document.getElementById('lUser').value.trim(),p=document.getElementById('lPass').value;
+  if(!u||!p)return showErr('lErr','Felder ausfüllen');
+  const saved=localStorage.getItem('cs_pass_'+u);
+  if(!saved)return showErr('lErr','User nicht gefunden');
+  if(saved!==p)return showErr('lErr','Falsches Passwort');
+  localStorage.setItem('currentUser',u);closeAuth();location.reload();
+}
+function doRegister(){
+  const u=document.getElementById('rUser').value.trim(),p=document.getElementById('rPass').value;
+  if(u.length<3||p.length<6)return showErr('rErr','Min. 3/6 Zeichen');
+  if(localStorage.getItem('cs_pass_'+u))return showErr('rErr','Name vergeben');
+  localStorage.setItem('cs_pass_'+u,p);localStorage.setItem('cs_plan_'+u,selectedPlan);localStorage.setItem('currentUser',u);
+  closeAuth();location.reload();
+}
 function logout(){localStorage.removeItem('currentUser');location.reload();}
 function toggleDrop(){document.getElementById('drop').style.display=document.getElementById('drop').style.display==='block'?'none':'block';}
 document.addEventListener('click',e=>{if(!e.target.closest('.avatar'))document.getElementById('drop').style.display='none';});
 function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
 function goToVersion(){const u=localStorage.getItem('currentUser');const p=localStorage.getItem('cs_plan_'+u)||'anfaenger';window.location.href=p==='pro'?'pro.html':p==='mittel'?'Medium.html':'beginner.html';}
 function checkAndGo(req,page){const u=localStorage.getItem('currentUser');if(!u){openModal('login');return;}const o={anfaenger:1,mittel:2,pro:3};const my=localStorage.getItem('cs_plan_'+u);if(o[my]>=o[req])window.location.href=page;else alert('Upgrade auf '+(req==='mittel'?'Mittel':'Pro')+' nötig!');}
+
+// ===== VIDEO DOWNLOADS =====
+function downloadVideo(type) {
+  // Erzeugt temporäre Beispiel-Dateien für Demo-Zwecke
+  let blob, filename;
+  
+  if(type === 'nature.mp4') {
+    // Simuliert ein Video-Download (in Produktion: echte URL)
+    showToast('📥', 'Download startet: Nature_Clip_HD.mp4');
+    return;
+  } else if(type === 'city.mp4') {
+    showToast('📥', 'Download startet: City_Timelapse.mp4');
+    return;
+  } else if(type === 'music.mp3') {
+    showToast('📥', 'Download startet: Background_Music.mp3');
+    return;
+  } else if(type === 'podcast.wav') {
+    showToast('📥', 'Download startet: Podcast_Intro.wav');
+    return;
+  }
+  
+  showToast('✅', 'Download abgeschlossen!');
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--panel);border:1px solid var(--border);padding:10px 16px;border-radius:8px;font-size:12px;z-index:999;transition:0.3s';
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.style.transform = 'translateX(-50%) translateY(0)');
+  setTimeout(() => {
+    t.style.transform = 'translateX(-50%) translateY(100px)';
+    setTimeout(() => t.remove(), 300);
+  }, 2500);
+}
 </script>
 </body>
 </html>
